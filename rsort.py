@@ -1,3 +1,4 @@
+import re
 import sys
 
 
@@ -7,8 +8,11 @@ def sort_requirements(path):
 
     with open(path, "r+") as f:
         for line in f.readlines() + [""]:
-            if line.startswith("#") or not line.strip():  # if comment or empty line
-                lines += sorted(lib_block, key=lambda line: line.split("==")[0])
+            if re.findall("^#|^$", line):  # if comment or empty line
+                lines += sorted(
+                    lib_block,
+                    key=lambda line: re.split("==|<=|>=|~=|<|>", line, maxsplit=1)[0],
+                )
                 lines.append(line)
                 lib_block = []
             else:
@@ -18,7 +22,7 @@ def sort_requirements(path):
         f.writelines(lines)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     path = "requirements.txt"
 
     if len(sys.argv) == 2:
